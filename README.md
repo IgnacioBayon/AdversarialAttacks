@@ -6,11 +6,11 @@ The train and evaluation scripts of either model (Sentiment Analysis RNN and New
 
 To train sentiment analysis model: 
 ```
-'python3 -m src.sentimentAnalysis.train'
+python3 -m src.sentimentAnalysis.train
 ```
 to train news classification model: 
 ```
-'python3 -m src.newsClassification.train'
+python3 -m src.newsClassification.train
 ```
 
 ## How to evaluate
