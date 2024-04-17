@@ -7,7 +7,7 @@ from utils.data import (
     process_texts,
     prepare_data_for_training,
 )
-from src.newsClassification.models import ClassificationRNN
+from src.newsClassification.models import SentimentRNN
 
 from typing import List, Dict
 
@@ -44,7 +44,7 @@ def main():
     features: List[List[int]] = process_texts(reviews, seq_len, word2idx)
 
     # Define the model, criterion, and optimizer
-    model = ClassificationRNN(
+    model = SentimentRNN(
         vocab_size=len(word2idx) + 1,
         output_size=output_size,
         embedding_dim=embedding_dim,
