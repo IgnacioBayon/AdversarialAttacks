@@ -7,13 +7,19 @@
 import os
 
 from datasets import load_dataset
-from utils import target_offset
+from src.utils import target_offset
+
 
 def load_data(args):
     if args.dataset == "dbpedia14":
-        dataset = load_dataset("csv", column_names=["label", "title", "sentence"],
-                                data_files={"train": os.path.join(args.data_folder, "dbpedia_csv/train.csv"),
-                                            "validation": os.path.join(args.data_folder, "dbpedia_csv/test.csv")})
+        dataset = load_dataset(
+            "csv",
+            column_names=["label", "title", "sentence"],
+            data_files={
+                "train": os.path.join(args.data_folder, "dbpedia_csv/train.csv"),
+                "validation": os.path.join(args.data_folder, "dbpedia_csv/test.csv"),
+            },
+        )
         dataset = dataset.map(target_offset, batched=True)
         num_labels = 14
     elif args.dataset == "ag_news":
@@ -29,19 +35,23 @@ def load_data(args):
         dataset = load_dataset("glue", "mnli")
         num_labels = 3
     dataset = dataset.shuffle(seed=0)
-    
-    
 
     return dataset, num_labels
 
-#create a main to download every dataset and save it in the data folder
+
+# create a main to download every dataset and save it in the data folder
 def main():
     datasets = ["dbpedia14", "ag_news", "imdb", "yelp", "mnli"]
     for dataset in datasets:
         if dataset == "dbpedia14":
-            load_dataset("csv", column_names=["label", "title", "sentence"],
-                                data_files={"train": os.path.join("data", "dbpedia_csv/train.csv"),
-                                            "validation": os.path.join("data", "dbpedia_csv/test.csv")})
+            load_dataset(
+                "csv",
+                column_names=["label", "title", "sentence"],
+                data_files={
+                    "train": os.path.join("data", "dbpedia_csv/train.csv"),
+                    "validation": os.path.join("data", "dbpedia_csv/test.csv"),
+                },
+            )
         elif dataset == "ag_news":
             load_dataset("ag_news")
         elif dataset == "imdb":
@@ -50,6 +60,7 @@ def main():
             load_dataset("yelp_polarity")
         elif dataset == "mnli":
             load_dataset("glue", "mnli")
+
 
 if __name__ == "__main__":
     main()
