@@ -37,7 +37,7 @@ def load_sentiment_data(
     labels = labels.lower()
     labels = labels.split("\n")
 
-    labels = [1 if label == "positive" else 0 for label in labels]
+    labels = [[0, 1] if label == "positive" else [1, 0] for label in labels]
 
     return reviews, labels
 

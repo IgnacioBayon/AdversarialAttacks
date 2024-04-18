@@ -1,6 +1,8 @@
 import torch
 from torch.nn import Module
 
+from nltk.corpus import wordnet
+
 from typing import List, Tuple, Dict
 import re
 import string
@@ -64,8 +66,8 @@ def create_vocab(texts: List[List[str]]) -> Tuple[Dict[str, int], Dict[int, str]
     Returns:
         Tuple[Dict[str, int], Dict[int, str]]: word2idx and idx2word dictionaries
     """
-    word2idx = {}
-    idx2word = {}
+    word2idx = {"-PAD-": 0}
+    idx2word = {0: "-PAD-"}
     idx = 1
     for text in texts:
         for word in text:
@@ -124,3 +126,65 @@ def load_model(model: Module, path: str, train_on_gpu: bool) -> Module:
         model.load_state_dict(torch.load(path, map_location=torch.device("cpu")))
 
     return model
+
+
+def synonym(word: str) -> str:
+    """Given a word, returns a synonym
+
+    Args:
+        word (str): word to be changed
+
+    Returns:
+        str: synonym of the word
+    """
+
+    synonyms: List[str] = []
+
+    for syn in wordnet.synsets(word):
+        for l in syn.lemmas():
+            synonyms.append(l.name())
+
+    synonyms = set(synonyms)
+
+    output: str = None
+    for synonym in synonyms:
+        if "-" not in synonym or "_" not in synonym:
+            output = synonym
+            return output
+
+    # If no synonym was found, return the original word
+    return word
+
+
+def change_synonyms(
+    change_list: List[List[float]],
+    texts: List[List[int]],
+    word2idx: Dict[str, int],
+    idx2word: Dict[int, str],
+) -> List[List[str]]:
+    """Given a list of tokenized sentences, return a list of tokenized sentences with changed synonyms
+       given by the change_list List.
+
+    Args:
+        change_list (List[List[float]]): List of list of change values
+        texts (List[List[str]]): List of list of words (tokens)
+
+    Returns:
+        List[List[str]]: List of list of words with changed synonyms
+    """
+    new_texts = []
+    for i, text in enumerate(texts):
+        new_text = []
+        for j, word in enumerate(text):
+            word = idx2word[word.item()]
+            if change_list[i][j] >= 0.6:
+                synonym_word = synonym(word)
+                try:
+                    new_text.append(word2idx[synonym_word])
+                except:
+                    new_text.append(0)
+            else:
+                new_text.append(word2idx[word])
+        new_texts.append(new_text)
+
+    return new_texts

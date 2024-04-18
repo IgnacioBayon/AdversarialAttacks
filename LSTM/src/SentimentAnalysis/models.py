@@ -43,8 +43,6 @@ class SentimentRNN(nn.Module):
         """
         Perform a forward pass of our model on some input and hidden state.
         """
-        batch_size = x.size(0)
-
         # embeddings and lstm_out
         x = x.long()
         embeds = self.embedding(x)
