@@ -5,7 +5,7 @@ from typing import List, Dict
 from utils.utils import save_model, load_model, change_synonyms
 from utils.custom_loss_function import AdversarialLoss
 from utils.data import (
-    load_sentiment_data,
+    load_classification_data,
     create_vocab,
     process_texts,
     prepare_data_for_training,
@@ -17,8 +17,8 @@ from src.sentimentAnalysis.models import SentimentRNN
 
 def train():
     # HYPERPARAMETERS -------------------------------------------------------------------------
-    path_to_reviews: str = "data/sentimentAnalysis/train_data/reviews.txt"
-    path_to_labels: str = "data/sentimentAnalysis/train_data/labels.txt"
+    path_to_headlines: str = "data/newsClassification/train.csv"
+    path_to_labels: str = "data/newsClassification/test.csv"
 
     path_to_sentiment_model: str = (
         "models/sentimentAnalysis/sentiment_rnn_outputdim2.pt"
@@ -35,7 +35,7 @@ def train():
     sentiment_embedding_dim: int = 400
     sentiment_hidden_dim: int = 256
     sentiment_n_layers: int = 2
-    sentiment_output_size: int = 2
+    sentiment_output_size: int = 4
 
     # Synonym model hyperparameters
     synonym_embedding_dim: int = 400
@@ -49,14 +49,14 @@ def train():
     # -----------------------------------------------------------------------------------------
 
     # Data loading and processing
-    reviews: List[List[str]]
+    headlines: List[List[str]]
     labels: List[List[int]]
-    reviews, labels = load_sentiment_data(path_to_reviews, path_to_labels)
+    headlines, labels = load_classification_data(path_to_headlines, path_to_labels)
 
     word2idx: Dict[str, int]
-    word2idx, idx2word = create_vocab(reviews)
+    word2idx, idx2word = create_vocab(headlines)
 
-    features: List[List[int]] = process_texts(reviews, seq_len, word2idx)
+    features: List[List[int]] = process_texts(headlines, seq_len, word2idx)
 
     train_loader, valid_loader = prepare_data_for_training(features, labels, 50, 0.8)
 

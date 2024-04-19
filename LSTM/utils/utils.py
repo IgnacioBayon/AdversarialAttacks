@@ -109,7 +109,7 @@ def save_model(model: Module, path: str) -> None:
     torch.save(model.state_dict(), path)
 
 
-def load_model(model: Module, path: str, train_on_gpu: bool) -> Module:
+def load_model(model: Module, path: str, device) -> Module:
     """Loads the model from the given path
 
     Args:
@@ -119,11 +119,7 @@ def load_model(model: Module, path: str, train_on_gpu: bool) -> Module:
     Returns:
         torch.nn.Module: The loaded model
     """
-    if train_on_gpu:
-        model.load_state_dict(torch.load(path, map_location=torch.device("cuda")))
-        return model
-    else:
-        model.load_state_dict(torch.load(path, map_location=torch.device("cpu")))
+    model.load_state_dict(torch.load(path, map_location=device))
 
     return model
 
@@ -177,7 +173,7 @@ def change_synonyms(
         new_text = []
         for j, word in enumerate(text):
             word = idx2word[word.item()]
-            if change_list[i][j] >= 0.6:
+            if change_list[i][j] >= 0.4:
                 synonym_word = synonym(word)
                 try:
                     new_text.append(word2idx[synonym_word])
