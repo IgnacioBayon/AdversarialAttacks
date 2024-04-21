@@ -172,18 +172,19 @@ def change_synonyms(
     for i, text in enumerate(texts):
         new_text = []
         for j, word in enumerate(text):
-            if word != 0:
+            try:
                 word = idx2word[word.item()]
-                if change_list[i][j] >= 0.5:
-                    synonym_word = synonym(word)
-                    try:
-                        new_text.append(word2idx[synonym_word])
-                    except:
-                        new_text.append(0)
-                else:
-                    new_text.append(word2idx[word])
+            except:
+                new_text.append(word)
+                continue
+            if change_list[i][j] >= 0.5:
+                synonym_word = synonym(word)
+                try:
+                    new_text.append(word2idx[synonym_word])
+                except:
+                    new_text.append(0)
             else:
-                new_text.append(0)
+                new_text.append(word2idx[word])
         new_texts.append(new_text)
 
     return new_texts

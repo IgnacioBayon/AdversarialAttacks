@@ -3,12 +3,13 @@ import torch
 
 
 class MultiLayerPerceptron(torch.nn.Module):
-    def __init__(self,
-                 vocab_size: int,
-                 embedding_dim: int,
-                 hidden_dims: List[int],
-                 output_dim: int
-                 ):
+    def __init__(
+        self,
+        vocab_size: int,
+        embedding_dim: int,
+        hidden_dims: List[int],
+        output_dim: int,
+    ):
         """
         Initialize the MLP with the given parameters
 
@@ -32,7 +33,8 @@ class MultiLayerPerceptron(torch.nn.Module):
         prev_hidden_dim = embedding_dim
         for i, hidden_dim in enumerate(hidden_dims):
             self.hidden_layers.add_module(
-                f"linear_{i}", torch.nn.Linear(prev_hidden_dim, hidden_dim))
+                f"linear_{i}", torch.nn.Linear(prev_hidden_dim, hidden_dim)
+            )
             self.hidden_layers.add_module(f"relu_{i}", torch.nn.ReLU())
             prev_hidden_dim = hidden_dim
 
@@ -53,6 +55,7 @@ class MultiLayerPerceptron(torch.nn.Module):
             The output tensor.
         """
         # Input dims - x: [batch_size, sentence_length]
+        x = x.long()
 
         x = self.embedding(x)
         # x: [batch_size, sentence_length, embedding_dim]
@@ -137,10 +140,8 @@ class ClassificationRNN(torch.nn.Module):
 
         if self.train_on_gpu:
             hidden = (
-                weight.new(self.n_layers, batch_size,
-                           self.hidden_dim).zero_().cuda(),
-                weight.new(self.n_layers, batch_size,
-                           self.hidden_dim).zero_().cuda(),
+                weight.new(self.n_layers, batch_size, self.hidden_dim).zero_().cuda(),
+                weight.new(self.n_layers, batch_size, self.hidden_dim).zero_().cuda(),
             )
         else:
             hidden = (

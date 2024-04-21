@@ -3,8 +3,8 @@ from torch import Tensor
 
 from typing import List
 
-
-# loss = cosine_similarity + perplexity + euclidean_distance
+# valor orientativo, el modelo puede decidir cambiar mas o menos palabras
+WORDS_TO_CHANGE = 50
 
 
 class AdversarialLoss(torch.nn.Module):
@@ -54,7 +54,7 @@ def synonym_output_sum_loss(synonym_output: Tensor) -> Tensor:
 
     x = torch.sum(synonym_output, dim=1)
 
-    synonym_loss = (x.mean() - 50) ** 2
+    synonym_loss = (x.mean() - WORDS_TO_CHANGE) ** 2
 
     return synonym_loss + 1
 
