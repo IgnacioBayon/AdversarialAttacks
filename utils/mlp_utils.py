@@ -47,7 +47,9 @@ def save_model(model: torch.nn.Module, path: str) -> None:
     torch.save(model.state_dict(), path)
 
 
-def load_model(model: torch.nn.Module, path: str, device: torch.device) -> torch.nn.Module:
+def load_model(
+    model: torch.nn.Module, path: str, device: torch.device
+) -> torch.nn.Module:
     """Loads the model from the given path
 
     Args:
@@ -140,11 +142,12 @@ def train_model(model, train_loader, val_loader, epochs, learning_rate, device, 
                 correct += (predictions == labels).sum().item()
                 total += labels.size(0)
 
-            print(
-                f"Epoch: {epoch+1}, Val. Accuracy:  {100 * correct / total:.4f} %")
+            print(f"Epoch: {epoch+1}, Val. Accuracy:  {100 * correct / total:.4f} %")
 
 
-def evaluate_model(model: torch.nn.Module, test_loader: DataLoader, device: torch.device, task: str):
+def evaluate_model(
+    model: torch.nn.Module, test_loader: DataLoader, device: torch.device, task: str
+):
     """
     Evaluate a Pytorch model.
 
