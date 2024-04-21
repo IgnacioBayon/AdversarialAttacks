@@ -1,12 +1,14 @@
-from typing import List, Dict, Tuple
+from typing import List
 import torch
-import numpy as np
-import random
-import os
 
 
 class MultiLayerPerceptron(torch.nn.Module):
-    def __init__(self, vocab_size: int, sentence_length: int, embedding_dim: int, hidden_dims: List[int], output_dim: int, dropout: float = 0.2):
+    def __init__(self,
+                 vocab_size: int,
+                 embedding_dim: int,
+                 hidden_dims: List[int],
+                 output_dim: int
+                 ):
         """
         Initialize the MLP with the given parameters
 
@@ -18,6 +20,7 @@ class MultiLayerPerceptron(torch.nn.Module):
         """
         super(MultiLayerPerceptron, self).__init__()
 
+        # Save the parameters in case of later use
         self.embedding_dim = embedding_dim
         self.vocab_size = vocab_size
 
@@ -26,24 +29,18 @@ class MultiLayerPerceptron(torch.nn.Module):
 
         # Create MLP layers dinamically
         self.hidden_layers = torch.nn.Sequential()
-        # self.hidden_layers.add_module("flatten", torch.nn.Flatten())
         prev_hidden_dim = embedding_dim
         for i, hidden_dim in enumerate(hidden_dims):
             self.hidden_layers.add_module(
                 f"linear_{i}", torch.nn.Linear(prev_hidden_dim, hidden_dim))
             self.hidden_layers.add_module(f"relu_{i}", torch.nn.ReLU())
-            # self.hidden_layers.add_module(
-            #     f"dropout_{i}", torch.nn.Dropout(dropout))
             prev_hidden_dim = hidden_dim
 
         # Output layer
         self.output_layer = torch.nn.Linear(prev_hidden_dim, output_dim)
 
-        # Global Average pooling
-        self.avg_pool = torch.nn.AdaptiveAvgPool2d(1)
-
-        # # Sigmoid activation function
-        # self.sig = torch.nn.Sigmoid()
+        # Sigmoid activation function
+        self.softmax = torch.nn.Softmax(dim=2)
 
     def forward(self, x):
         """
@@ -55,7 +52,7 @@ class MultiLayerPerceptron(torch.nn.Module):
         Returns:
             The output tensor.
         """
-        # Initial input dims - x: [batch_size, sentence_length]
+        # Input dims - x: [batch_size, sentence_length]
 
         x = self.embedding(x)
         # x: [batch_size, sentence_length, embedding_dim]
@@ -69,7 +66,5 @@ class MultiLayerPerceptron(torch.nn.Module):
         x = self.output_layer(x)
         # x: [batch_size, output_dim]
 
-        x = x.squeeze()
-        # x: [batch_size]
-
+        # Output dims - x: [batch_size, output_dim]
         return x

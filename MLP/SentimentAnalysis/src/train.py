@@ -25,31 +25,35 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 if __name__ == "__main__":
 
-    data_path = "data/IMDB_Dataset.csv"
-    model_path = "models/best_model.pt"
+    task = "binary"
+    # task = "mutliclass"
+    if task == "binary":
+        data_path = "data/IMDB_Dataset.csv"
+        model_path = "models/sentiment_analysis.pt"
+        output_dim = 2
+    elif task == "multiclass":
+        data_path = "data/News_Dataset.csv"
+        model_path = "models/news_classification.pt"
+        output_dim = 4
+    data_type = task
 
-    embedding_dim = 100
-    epochs = 25
+    epochs = 6
     lr = 0.0001
     batch_size = 64
-    patience = 100
     hidden_sizes = [32, 16]
-    output_dim = 1
+    embedding_dim = 100
 
-    train_loader, val_loader, _, vocab_size, vocab_to_int, int_to_vocab, sentence_length = generate_data_loader(
-        data_path, batch_size
-    )
+    train_loader, val_loader, _, vocab_size, vocab_to_int, int_to_vocab, sentence_length = \
+        generate_data_loader(data_path, data_type, batch_size)
 
     model = MultiLayerPerceptron(
-        vocab_size, sentence_length, embedding_dim, hidden_sizes, output_dim
+        vocab_size, embedding_dim, hidden_sizes, output_dim
     ).to(device)
 
     train_model(
-        model, train_loader, val_loader, epochs, lr, device
+        model, train_loader, val_loader, epochs, lr, device, task
     )
 
     save_model(model, model_path)
 
-    # plot_embeddings(model.embedding, int_to_vocab)
-
-    print("Training complete.")
+    print("\nTraining complete.")

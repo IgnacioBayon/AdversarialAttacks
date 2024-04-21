@@ -1,13 +1,7 @@
-from torch.utils.data import Dataset, DataLoader, random_split
+from torch.utils.data import DataLoader
 from torch.jit import RecursiveScriptModule
 import os
 import torch
-import torch.nn.functional as F
-import matplotlib.pyplot as plt
-from sklearn.manifold import TSNE
-import matplotlib
-matplotlib.rc('font', **{'sans-serif': 'Arial',
-                         'family': 'sans-serif'})
 
 
 def save_model(model, name):
@@ -67,7 +61,7 @@ def load_model(model: torch.nn.Module, path: str, device: torch.device) -> torch
     return model
 
 
-def train_model(model, train_loader, val_loader, epochs, learning_rate, device):
+def train_model(model, train_loader, val_loader, epochs, learning_rate, device, task):
     """
     Train a Pytorch model.
 
@@ -81,7 +75,7 @@ def train_model(model, train_loader, val_loader, epochs, learning_rate, device):
         print_every (int): Frequency of epochs to print training and test loss.
         patience (int): The number of epochs to wait for improvement on the test loss before stopping training early.
     """
-    criterion = torch.nn.BCEWithLogitsLoss()
+    criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
 
     model.to(device)
@@ -92,49 +86,65 @@ def train_model(model, train_loader, val_loader, epochs, learning_rate, device):
         total = 0
 
         # Print an element of the train_loader
-        for i, (reviews, labels) in enumerate(train_loader):
-            reviews, labels = reviews.to(device), labels.to(device)
-            reviews, labels = reviews.long(), labels.float()
+        for i, (sentences, labels) in enumerate(train_loader):
+            sentences, labels = sentences.to(device), labels.to(device)
+            if task == "binary":
+                sentences, labels = sentences.long(), labels.long()
+            elif task == "multiclass":
+                sentences, labels = sentences.long(), labels.float()
 
             optimizer.zero_grad()
 
-            output = model(reviews)
+            output = model(sentences)
             loss = criterion(output, labels)
 
             loss.backward()
 
             optimizer.step()
 
-            # predictions = torch.round(output)
-            predictions = (output > 0).int()
+            # For CrossEntropyLoss:
+            predictions = torch.argmax(output, dim=1)
+
+            if task == "multiclass":
+                # Undo one-hot encoding
+                labels = torch.argmax(labels, dim=1)
+
             correct += (predictions == labels).sum().item()
             total += labels.size(0)
 
-            if i % 100 == 0:
-                print(
-                    f"Epoch: {epoch}, Step: {i}/{len(train_loader)}, Loss: {loss.item():.4f}, Accuracy: {100 * correct / total:.4f}%"
-                )
+        print(
+            f"Epoch: {epoch+1}, Train Accuracy: {100 * correct / total:.4f} %, Loss: {loss.item():.4f}"
+        )
 
         # Validation loop
         model.eval()
         with torch.no_grad():
             correct = 0
             total = 0
-            for reviews, labels in val_loader:
-                reviews, labels = reviews.to(device), labels.to(device)
-                reviews, labels = reviews.long(), labels.float()
+            for sentences, labels in val_loader:
+                sentences, labels = sentences.to(device), labels.to(device)
+                if task == "binary":
+                    sentences, labels = sentences.long(), labels.long()
+                elif task == "multiclass":
+                    sentences, labels = sentences.long(), labels.float()
 
-                output = model(reviews)
-                predictions = (output > 0).int()
+                output = model(sentences)
+
+                # For CrossEntropyLoss:
+                predictions = torch.argmax(output, dim=1)
+
+                if task == "multiclass":
+                    # Undo one-hot encoding
+                    labels = torch.argmax(labels, dim=1)
 
                 correct += (predictions == labels).sum().item()
                 total += labels.size(0)
 
             print(
-                f"Epoch: {epoch}, Validation Accuracy: {100 * correct / total}%")
+                f"Epoch: {epoch+1}, Val. Accuracy:  {100 * correct / total:.4f} %")
 
 
-def evaluate_model(model: torch.nn.Module, test_loader: DataLoader, device: torch.device):
+def evaluate_model(model: torch.nn.Module, test_loader: DataLoader, device: torch.device, task: str):
     """
     Evaluate a Pytorch model.
 
@@ -151,12 +161,21 @@ def evaluate_model(model: torch.nn.Module, test_loader: DataLoader, device: torc
     total = 0
 
     with torch.no_grad():
-        for reviews, labels in test_loader:
-            reviews, labels = reviews.to(device), labels.to(device)
-            reviews, labels = reviews.long(), labels.float()
+        for sentences, labels in test_loader:
+            sentences, labels = sentences.to(device), labels.to(device)
+            if task == "binary":
+                sentences, labels = sentences.long(), labels.long()
+            elif task == "multiclass":
+                sentences, labels = sentences.long(), labels.float()
 
-            output = model(reviews)
-            predictions = (output > 0).int()
+            output = model(sentences)
+
+            # For CrossEntropyLoss:
+            predictions = torch.argmax(output, dim=1)
+
+            if task == "multiclass":
+                # Undo one-hot encoding
+                labels = torch.argmax(labels, dim=1)
 
             correct += (predictions == labels).sum().item()
             total += labels.size(0)

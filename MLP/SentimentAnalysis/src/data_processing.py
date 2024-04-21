@@ -1,11 +1,12 @@
+from nltk.corpus import stopwords
 from typing import List, Dict, Tuple
 import torch
 from torch.utils.data import Dataset, DataLoader, random_split
 from collections import Counter
 import re
 import nltk
+import pandas as pd
 nltk.download('stopwords')
-from nltk.corpus import stopwords
 
 
 def tokenize(text: str) -> List[str]:
@@ -33,6 +34,8 @@ def tokenize(text: str) -> List[str]:
     text = text.replace('?', ' <QUESTION_MARK> ')
     # text = text.replace('\n', ' <NEW_LINE> ')
     text = text.replace(':', ' <COLON> ')
+    # Remove \
+    text = text.replace("\\", " ")
 
     words = text.split()
     # Remove stopwords
@@ -42,26 +45,42 @@ def tokenize(text: str) -> List[str]:
     return words
 
 
-def load_and_preprocess_data(data_path: str) -> List[List[str]]:
+def load_and_preprocess_data(data_path: str, data_type: str) -> List[List[str]]:
     """
     Load and preprocess the data from the given path.
 
     Args:
         data_path(str): The path to the data file.
+        data_type(str): The type of data to load. Either 'binary' or 'multiclass'.
 
     Returns:
         List[List[str]]: A list of tokenized words from the data file.
-        List[int]: A list of sentiment labels for each review.
+        List[int]: A list of labels.
     """
-    sentences = []
-    labels = []
-    with open(data_path, 'r', encoding="utf-8") as f:
-        for line in f.readlines()[1:]:
-            review, sentiment = line[1:-11], line[-9:-1]
-            tokens = tokenize(review)
-            sentences.append(tokens)
-            sentiment = 1 if sentiment == 'positive' else 0
-            labels.append(sentiment)
+    if data_type == 'binary':
+        sentences = []
+        labels = []
+        with open(data_path, 'r', encoding="utf-8") as f:
+            for line in f.readlines()[1:]:
+                sentence, label = line[1:-11], line[-9:-1]
+                tokens = tokenize(sentence)
+                sentences.append(tokens)
+                label = 1 if label == 'positive' else 0
+                labels.append(label)
+
+    elif data_type == 'multiclass':
+        df = pd.read_csv(data_path)
+
+        titles = df["title"].to_list()
+        descriptions = df["description"].to_list()
+        labels = df["label"].to_list()
+
+        sentences = [
+            tokenize(title + description) for title, description in zip(titles, descriptions)
+        ]
+        labels = [
+            [1 if label == i + 1 else 0 for i in range(4)] for label in labels
+        ]        
 
     return sentences, labels
 
@@ -93,14 +112,14 @@ def create_lookup_tables(sentences: List[List[str]]) -> Tuple[Dict[str, int], Di
     return vocab_to_int, int_to_vocab
 
 
-class SentimentAnalysisDataset(Dataset):
+class GeneralDataset(Dataset):
     def __init__(self, sentences: List[List[int]], labels: List[int], word_to_int: Dict[str, int], int_to_word: Dict[int, str]):
         """
-        Initialize the SentimentAnalysisDataset.
+        Initialize the GeneralDataset.
 
         Args:
             sentences (List[List[int]]): A list of tokenized sentences.
-            labels (List[int]): A list of sentiment labels.
+            labels (List[int]): A list of labels.
         """
         self.sentences = sentences
         self.labels = labels
@@ -120,20 +139,22 @@ class SentimentAnalysisDataset(Dataset):
         return self.int_to_word[idx]
 
 
-def generate_data_loader(data_path: str, batch_size: int = 64) -> Tuple[DataLoader, DataLoader, int, Dict[str, int], Dict[int, str]]:
+def generate_data_loader(data_path: str, data_type: str, batch_size: int = 64) -> Tuple[DataLoader, DataLoader, int, Dict[str, int], Dict[int, str]]:
     """
     Generate the data loaders for the training and test sets.
 
     Args:
         data_path (str): The path to the data file.
+        data_type (str): The type of data to load. Either 'binary' or 'multiclass'.
         batch_size (int): The batch size to use for the data loaders.
 
     Returns:
-        Tuple[DataLoader, DataLoader, int, Dict[str, int], Dict[int, str]]: A tuple containing the training DataLoader,
-        the test DataLoader, the vocabulary size, the vocab_to_int dictionary, and the int_to_vocab dictionary.
+        Tuple[DataLoader, DataLoader, DataLoader, int, Dict[str, int], Dict[int, str]]: A tuple containing the
+        training, validation and test DataLoaders, the vocabulary size, the vocab_to_int dictionary, and the
+        int_to_vocab dictionary.
     """
     # Load and preprocess the data
-    sentences, labels = load_and_preprocess_data(data_path)
+    sentences, labels = load_and_preprocess_data(data_path, data_type)
 
     # Create lookup tables
     vocab_to_int, int_to_vocab = create_lookup_tables(sentences)
@@ -142,9 +163,10 @@ def generate_data_loader(data_path: str, batch_size: int = 64) -> Tuple[DataLoad
     sentences = [
         [vocab_to_int[word] for word in sentence] for sentence in sentences
     ]
-    
+
     # We choose the sentence length as the 95th percentile of the sentence length
-    sentence_length = sorted([len(sentence) for sentence in sentences])[int(0.95 * len(sentences))]
+    sentence_length = sorted([len(sentence) for sentence in sentences])[
+        int(0.95 * len(sentences))]
 
     # Pad the sentences to the sentence length
     for i, sentence in enumerate(sentences):
@@ -156,7 +178,7 @@ def generate_data_loader(data_path: str, batch_size: int = 64) -> Tuple[DataLoad
     sentences = torch.tensor(sentences)
     labels = torch.tensor(labels)
 
-    dataset = SentimentAnalysisDataset(
+    dataset = GeneralDataset(
         sentences, labels, vocab_to_int, int_to_vocab)
 
     # Split the data into training, validation, and test sets
