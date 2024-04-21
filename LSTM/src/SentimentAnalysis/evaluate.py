@@ -25,6 +25,7 @@ def main():
     n_layers: int = 2
     output_size: int = 1
     train_on_gpu: bool = torch.cuda.is_available()
+    device = torch.device("cuda" if train_on_gpu else "cpu")
     print(f"Training on GPU: {train_on_gpu}")
     # -----------------------------------------------------------------------------------------
     # Create vocab from training data, in order to load the model correctly (same vocab size)
@@ -43,7 +44,7 @@ def main():
         hidden_dim=hidden_dim,
         n_layers=n_layers,
     )
-    model = load_model(model, path_to_model, train_on_gpu)
+    model = load_model(model, path_to_model, device)
 
     # Load test data
     headlines: List[List[str]]

@@ -37,7 +37,7 @@ class SentimentRNN(nn.Module):
 
         # linear and sigmoid layers
         self.fc = nn.Linear(hidden_dim, output_size)
-        self.sig = nn.Sigmoid()
+        self.sig = nn.Softmax(dim=1)
 
     def forward(self, x, hidden):
         """

@@ -21,6 +21,7 @@ def main():
     n_layers: int = 2
     output_size: int = 4
     train_on_gpu: bool = torch.cuda.is_available()
+    device = torch.device("cuda" if train_on_gpu else "cpu")
     print(f"Training on GPU: {train_on_gpu}")
     # -----------------------------------------------------------------------------------------
     # Create vocab from training data, in order to load the model correctly (same vocab size)
@@ -31,13 +32,13 @@ def main():
     word2idx, _ = create_vocab(train_headlines)
 
     model = ClassificationRNN(
-        vocab_size=len(word2idx) + 1,
+        vocab_size=len(word2idx),
         output_size=output_size,
         embedding_dim=embedding_dim,
         hidden_dim=hidden_dim,
         n_layers=n_layers,
     )
-    model = load_model(model, path_to_model, train_on_gpu)
+    model = load_model(model, path_to_model, device)
 
     # Load test data
     headlines: List[List[str]]

@@ -7,7 +7,7 @@ from utils.data import (
     process_texts,
     prepare_data_for_training,
 )
-from src.sentimentAnalysis.models import SentimentRNN
+from src.newsClassification.models import SentimentRNN
 
 from typing import List, Dict
 

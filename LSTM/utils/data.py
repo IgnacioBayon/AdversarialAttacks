@@ -8,7 +8,7 @@ from pandas import DataFrame
 from typing import List, Tuple, Dict
 
 # own imports
-from utils.utils import tokenize, create_vocab, pad_features
+from utils.utils import tokenize, pad_features
 
 
 def load_sentiment_data(
@@ -37,7 +37,7 @@ def load_sentiment_data(
     labels = labels.lower()
     labels = labels.split("\n")
 
-    labels = [[0, 1] if label == "positive" else [1, 0] for label in labels]
+    labels = [1 if label == "positive" else 0 for label in labels]
 
     return reviews, labels
 
