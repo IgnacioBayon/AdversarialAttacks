@@ -4,7 +4,7 @@ from utils.train_functions import evaluate_model
 from utils.utils import load_model, create_vocab
 from utils.data import load_sentiment_data, process_texts, prepare_data_for_testing
 
-from src.newsClassification.models import ClassificationRNN
+from src.sentimentAnalysis.models import SentimentRNN
 
 from typing import List, Dict
 
@@ -36,7 +36,7 @@ def main():
     word2idx: Dict[str, int]
     word2idx, _ = create_vocab(train_headlines)
 
-    model = ClassificationRNN(
+    model = SentimentRNN(
         vocab_size=len(word2idx) + 1,
         output_size=output_size,
         embedding_dim=embedding_dim,
