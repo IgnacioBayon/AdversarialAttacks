@@ -1,32 +1,35 @@
 # AdversarialAttacks
 
 ## Download Data and Models:
-Download the data and the trained models from the following link: https://drive.google.com/file/d/1Vjo-OBFpRGPaKk9KtlTgoIKEPWvuW18i/view?usp=drive_link
+Download the data and the trained models from the following link:  
+https://drive.google.com/file/d/1Vjo-OBFpRGPaKk9KtlTgoIKEPWvuW18i/view?usp=drive_link
 
 ## How to train:
+The code is organized in folders. Therefore, the structure of the command to train the model is as follows:
+```
+python -m src.<model>.<task>.train
+```
+Therefore, the command to train the different models for the different tasks is as follows:
+```
+python -m src.MLP.sentimenAnalysis.train
+python -m src.MLP.newsClassification.train
+python -m src.LSTM.sentimenAnalysis.train
+python -m src.LSTM.newsClassification.train
+```
 
-The train and evaluation scripts of either model (Sentiment Analysis RNN and News Classification RNN) can be found in their respective packages (src.sentimentAnalysis, src.newsClassification).
-
-To train sentiment analysis model: 
-```
-python3 -m src.sentimentAnalysis.train
-```
-to train news classification model: 
-```
-python3 -m src.newsClassification.train
-```
 
 ## How to evaluate
+To evaluate the models, the following command should be used:
+```
+python -m src.<model>.<task>.evaluate
+```
+Therefore, the command to evaluate the different models for the different tasks is as follows:
+```
+python -m src.MLP.sentimenAnalysis.evaluate
+python -m src.MLP.newsClassification.evaluate
+python -m src.LSTM.sentimenAnalysis.evaluate
+python -m src.LSTM.newsClassification.evaluate
+```
 
-To evaluate, simply run the evaluate script of each package (sentimentAnalysis and newsClassification). To evaluate correctly, the model state dicts must be saved inside a models directory in the workspace
-
-To evaluate sentiment analysis model: 
-```
-python3 -m src.sentimentAnalysis.evaluate
-```
-to evaluate news classification model: 
-```
-python3 -m src.newsClassification.evaluate
-```
-
-The data and models directories are not included in this repo, as they are too big in size. We will use the models trained with these scripts to experiment on different adversarial attacks
+## Note
+There are different models. By default, the train and evaluate have the model with the best performance. However, if you want to train and / or evaluate a specific model, you can change the model path in the train and evaluate files.

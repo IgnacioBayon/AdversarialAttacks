@@ -8,6 +8,7 @@ __pycache__/
 
 /data
 /models
+data_and_models.zip
 
 # Distribution / packaging
 .Python
