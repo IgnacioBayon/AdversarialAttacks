@@ -1,5 +1,8 @@
 # AdversarialAttacks
 
+## Download Data and Models:
+Download the data and the trained models from the following link: https://drive.google.com/file/d/1Vjo-OBFpRGPaKk9KtlTgoIKEPWvuW18i/view?usp=drive_link
+
 ## How to train:
 
 The train and evaluation scripts of either model (Sentiment Analysis RNN and News Classification RNN) can be found in their respective packages (src.sentimentAnalysis, src.newsClassification).
