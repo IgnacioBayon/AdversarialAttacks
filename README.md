@@ -5,7 +5,7 @@ Download data:
 https://drive.google.com/file/d/1wAx51b1fm0N4fB3tlVeSc28mE_scBOYM/view?usp=sharing  
 
 Download models:  
-https://drive.google.com/file/d/1bsNfdSWD3VIKe1pE7qhB9y1XWwkl53m3/view?usp=sharing  
+https://drive.google.com/file/d/1q2jXIy8jnlmTY-hGUlAgndNeXjdSskeF/view?usp=sharing
 
 Download the data and models and put them in the root of the project. They should be kept as they are (inside a "*data*" and "*models*" directory each).
 
