@@ -59,7 +59,7 @@ def train():
     ) = generate_data_loader(path_to_data, data_type, batch_size)
 
     classification_model = MultiLayerPerceptron(
-        vocab_size,
+        vocab_size + 1,
         classification_embedding_dim,
         classification_hidden_sizes,
         classification_output_dim,

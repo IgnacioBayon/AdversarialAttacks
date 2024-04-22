@@ -67,7 +67,8 @@ def train():
         sentiment_output_dim,
     )
 
-    sentiment_model = load_model(sentiment_model, path_to_sentiment_model, device)
+    sentiment_model = load_model(
+        sentiment_model, path_to_sentiment_model, device)
 
     sentiment_model.to(device)
 
@@ -109,11 +110,12 @@ def train():
 
             # With this output, calculate which words to change for synonyms.
             synonym_inputs: List[List[int]]
-            synonym_inputs = change_synonyms(synonym_output, inputs, word2idx, idx2word)
+            synonym_inputs = change_synonyms(
+                synonym_output, inputs, word2idx, idx2word)
             synonym_inputs = torch.tensor(synonym_inputs).to(device)
 
             # Luego pasar la frase cambiada por sentimentRNN y calcular el output_prob
-            
+
             output_probs = sentiment_model(synonym_inputs)
 
             output_probs.to(device)
@@ -134,7 +136,8 @@ def train():
             predicted_outputs = torch.argmax(output_probs, dim=1)
             correct_labels = torch.argmax(labels, dim=1)
             batch_accuracy = (
-                sum(predicted_outputs == correct_labels) / output_probs.shape[0]
+                sum(predicted_outputs == correct_labels) /
+                output_probs.shape[0]
             )
             accuracies.append(batch_accuracy)
 
@@ -185,7 +188,8 @@ def train():
             labels = labels.to(device)
 
             val_synonym_h = tuple([h.data for h in val_synonym_h])
-            synonym_outputs, val_synonym_h = synonym_model(inputs, val_synonym_h)
+            synonym_outputs, val_synonym_h = synonym_model(
+                inputs, val_synonym_h)
 
             synonym_inputs: List[List[int]]
             synonym_inputs = change_synonyms(
@@ -212,7 +216,8 @@ def train():
             predicted_outputs = torch.argmax(output_probs, dim=1)
             correct_labels = torch.argmax(labels, dim=1)
             accuracies.append(
-                sum(predicted_outputs == correct_labels) / output_probs.shape[0]
+                sum(predicted_outputs == correct_labels) /
+                output_probs.shape[0]
             )
 
         print(f"Validation loss: {sum(val_losses) / len(val_losses)}")

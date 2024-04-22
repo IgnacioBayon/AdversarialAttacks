@@ -46,7 +46,7 @@ def tokenize(text: str) -> List[str]:
     return words
 
 
-def load_and_preprocess_data(data_path: str, data_type: str) -> List[List[str]]:
+def load_and_preprocess_data(data_path: str, data_type: str) -> Tuple[List[List[str]], List[List[int]]]:
     """
     Load and preprocess the data from the given path.
 
@@ -56,7 +56,7 @@ def load_and_preprocess_data(data_path: str, data_type: str) -> List[List[str]]:
 
     Returns:
         List[List[str]]: A list of tokenized words from the data file.
-        List[int]: A list of labels.
+        List[List[int]]: A list of one-hot encoded labels.
     """
     if data_type == "binary":
         sentences = []
