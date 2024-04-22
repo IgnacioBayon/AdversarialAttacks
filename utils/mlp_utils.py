@@ -176,9 +176,10 @@ def evaluate_model(
             # For CrossEntropyLoss:
             predictions = torch.argmax(output, dim=1)
 
-            if task == "multiclass":
-                # Undo one-hot encoding
-                labels = torch.argmax(labels, dim=1)
+            # if task == "multiclass":
+            #     # Undo one-hot encoding
+            #     labels = torch.argmax(labels, dim=1)
+            labels = torch.argmax(labels, dim=1)
 
             correct += (predictions == labels).sum().item()
             total += labels.size(0)

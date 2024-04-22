@@ -35,11 +35,11 @@ if __name__ == "__main__":
     embedding_dim = 100
 
     _, _, test_loader, vocab_size, _, _, sentence_length = generate_data_loader(
-        data_path, data_type, batch_size
+        data_path, data_type, batch_size, one_hot_labels=True
     )
 
     model = MultiLayerPerceptron(
-        vocab_size, embedding_dim, hidden_sizes, output_dim
+        vocab_size + 1, embedding_dim, hidden_sizes, output_dim
     ).to(device)
 
     model = load_model(model, model_path, device)

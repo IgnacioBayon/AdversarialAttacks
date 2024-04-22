@@ -149,7 +149,7 @@ class GeneralDataset(Dataset):
 
 
 def generate_data_loader(
-    data_path: str, data_type: str, batch_size: int = 64
+    data_path: str, data_type: str, batch_size: int = 64, one_hot_labels: bool = False
 ) -> Tuple[DataLoader, DataLoader, int, Dict[str, int], Dict[int, str]]:
     """
     Generate the data loaders for the training and test sets.
@@ -166,6 +166,9 @@ def generate_data_loader(
     """
     # Load and preprocess the data
     sentences, labels = load_and_preprocess_data(data_path, data_type)
+
+    if one_hot_labels:
+        labels = [[1, 0] if label == 0 else [0, 1] for label in labels]
 
     # Create lookup tables
     vocab_to_int, int_to_vocab = create_lookup_tables(sentences)
