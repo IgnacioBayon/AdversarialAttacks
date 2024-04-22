@@ -15,7 +15,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def main():
     # HYPERPARAMETERS -------------------------------------------------------------------------
-    path_to_model: str = "models/sentimentAnalysis/lstm_sentiment.pth"
+    path_to_model: str = "models/sentimentAnalysis/lstm_sentiment.pt"
     path_to_test_reviews: str = "data/sentimentAnalysis/test_data/reviews.txt"
     path_to_test_labels: str = "data/sentimentAnalysis/test_data/labels.txt"
     path_to_train_reviews: str = "data/sentimentAnalysis/train_data/reviews.txt"
@@ -80,11 +80,9 @@ def main():
     features: List[List[int]] = process_texts(
         synonym_headlines, seq_len=seq_len, word2idx=word2idx
     )
-    print("Synonym attack features: ", features[:2])
 
     test_synonym_loader = prepare_data_for_testing(
         features, labels, batch_size)
-    print("Test Synonym Loader: ", test_synonym_loader[:2])
 
     test_loss, test_acc = evaluate_model(
         model=model,

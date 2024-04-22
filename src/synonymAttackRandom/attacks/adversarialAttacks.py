@@ -74,12 +74,13 @@ def generate_synonym_texts(texts: List[List[str]]) -> List[List[str]]:
     """
     changed_texts = []
     len_texts = len(texts)
+    print("Generating synonym texts:")
     for i, text in enumerate(texts):
         synonym_sentence = synonym_attack(text)
-        if i % 100 == 0:
-            print(f"{i} / {len_texts} : {synonym_sentence}")
+        if i % 1000 == 0:
+            print(f"\tStep: {i} / {len_texts}")
         changed_texts.append(synonym_sentence)
-
+    
     return changed_texts
 
 
