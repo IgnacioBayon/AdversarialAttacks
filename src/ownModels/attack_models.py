@@ -69,7 +69,7 @@ class SynonymAttackRNN(nn.Module):
         self.output_size = output_size
         self.n_layers = n_layers
         self.hidden_dim = hidden_dim
-        self.train_on_gpu = torch.cuda.is_available()
+        self.devive = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # embedding and LSTM layers
         self.embedding = nn.Embedding(vocab_size, embedding_dim)
@@ -118,15 +118,9 @@ class SynonymAttackRNN(nn.Module):
         # initialized to zero, for hidden state and cell state of LSTM
         weight = next(self.parameters()).data
 
-        if self.train_on_gpu:
-            hidden = (
-                weight.new(self.n_layers, batch_size, self.hidden_dim).zero_().cuda(),
-                weight.new(self.n_layers, batch_size, self.hidden_dim).zero_().cuda(),
-            )
-        else:
-            hidden = (
-                weight.new(self.n_layers, batch_size, self.hidden_dim).zero_(),
-                weight.new(self.n_layers, batch_size, self.hidden_dim).zero_(),
-            )
+        hidden = (
+            weight.new(self.n_layers, batch_size, self.hidden_dim).zero_().to(self.device),
+            weight.new(self.n_layers, batch_size, self.hidden_dim).zero_().to(self.device),
+        )
 
         return hidden

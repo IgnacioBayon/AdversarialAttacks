@@ -1,8 +1,11 @@
 # AdversarialAttacks
 
 ## Download Data and Models:
-Download the data and the trained models from the following link:  
-https://drive.google.com/file/d/1Vjo-OBFpRGPaKk9KtlTgoIKEPWvuW18i/view?usp=drive_link
+Download data:  
+https://drive.google.com/file/d/1wAx51b1fm0N4fB3tlVeSc28mE_scBOYM/view?usp=sharing  
+
+Download models:  
+https://drive.google.com/file/d/1bsNfdSWD3VIKe1pE7qhB9y1XWwkl53m3/view?usp=sharing  
 
 ## How to train:
 The code is organized in folders. Therefore, the structure of the command to train the model is as follows:

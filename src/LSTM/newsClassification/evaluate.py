@@ -20,9 +20,7 @@ def main():
     hidden_dim: int = 256
     n_layers: int = 2
     output_size: int = 4
-    train_on_gpu: bool = torch.cuda.is_available()
-    device = torch.device("cuda" if train_on_gpu else "cpu")
-    print(f"Training on GPU: {train_on_gpu}")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # -----------------------------------------------------------------------------------------
     # Create vocab from training data, in order to load the model correctly (same vocab size)
     train_headlines: List[List[str]]
@@ -57,7 +55,7 @@ def main():
         test_loader=test_loader,
         batch_size=batch_size,
         criterion=criterion,
-        train_on_gpu=train_on_gpu,
+        device=device,
     )
 
     print(f"Test loss: {test_loss}")

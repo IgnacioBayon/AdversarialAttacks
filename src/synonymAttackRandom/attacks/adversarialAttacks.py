@@ -5,7 +5,7 @@ from typing import List
 from random import random
 
 
-CHANGE_RATE = 0.5
+CHANGE_RATE = 0.8
 
 
 def synonym(word: str) -> str:
@@ -63,13 +63,6 @@ def synonym_attack(texts: List[str]) -> List[str]:
     return changed_texts
 
 
-if __name__ == "__main__":
-    texts = [
-        "I really enjoyed this film, it is my favourite",
-    ]
-    print(synonym_attack(texts))
-
-
 def generate_synonym_texts(texts: List[List[str]]) -> List[List[str]]:
     """Given a list of texts, changes some words into their synonyms
 
@@ -80,7 +73,18 @@ def generate_synonym_texts(texts: List[List[str]]) -> List[List[str]]:
         List[List[str]]: altered list of sentences
     """
     changed_texts = []
-    for text in texts:
-        changed_texts.append(synonym_attack(text))
+    len_texts = len(texts)
+    for i, text in enumerate(texts):
+        synonym_sentence = synonym_attack(text)
+        if i % 100 == 0:
+            print(f"{i} / {len_texts} : {synonym_sentence}")
+        changed_texts.append(synonym_sentence)
 
     return changed_texts
+
+
+if __name__ == "__main__":
+    texts = [
+        "I really enjoyed this film, it is my favourite",
+    ]
+    print(synonym_attack(texts))

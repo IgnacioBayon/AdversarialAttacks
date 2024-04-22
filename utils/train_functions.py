@@ -14,7 +14,7 @@ def train_model(
     batch_size: int,
     criterion: Module,
     optimizer: torch.optim.Optimizer,
-    train_on_gpu: bool,
+    device: torch.device,
 ) -> Module:
     """Trains the model (RNN or LSTM)
 
@@ -26,7 +26,7 @@ def train_model(
         batch_size (int): Batch size
         criterion (Module): Loss function
         optimizer (torch.optim.Optimizer): Optimizer
-        train_on_gpu (bool): Whether to train on GPU
+        device (torch.device): Device to train on
 
     Returns:
         Module: The trained model
@@ -37,8 +37,7 @@ def train_model(
     print_every = 100
     clip = 5  # gradient clipping
 
-    if train_on_gpu:
-        model.cuda()
+    model.to(device)
 
     model.train()
     # train for some number of epochs
@@ -50,8 +49,7 @@ def train_model(
         for inputs, labels in train_loader:
             counter += 1
 
-            if train_on_gpu:
-                inputs, labels = inputs.cuda(), labels.cuda()
+            inputs, labels = inputs.to(device), labels.to(device)
 
             # Creating new variables for the hidden state, otherwise
             # we'd backprop through the entire training history
@@ -64,7 +62,7 @@ def train_model(
             output, h = model(inputs, h)
 
             # calculate the loss and perform backprop
-            loss = criterion(output.squeeze(), labels.float())
+            loss = criterion(output, labels.float())
             loss.backward()
             # `clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs.
             torch.nn.utils.clip_grad_norm_(model.parameters(), clip)
@@ -82,11 +80,10 @@ def train_model(
                     # we'd backprop through the entire training history
                     val_h = tuple([each.data for each in val_h])
 
-                    if train_on_gpu:
-                        inputs, labels = inputs.cuda(), labels.cuda()
+                    inputs, labels = inputs.to(device), labels.to(device)
 
                     output, val_h = model(inputs, val_h)
-                    val_loss = criterion(output.squeeze(), labels.float())
+                    val_loss = criterion(output, labels.float())
 
                     val_losses.append(val_loss.item())
 
@@ -106,7 +103,7 @@ def evaluate_model(
     test_loader: DataLoader,
     batch_size: int,
     criterion: Module,
-    train_on_gpu: bool,
+    device: torch.device,
 ) -> Tuple[float, float]:
     """Evaluate the model on the test set
 
@@ -115,14 +112,17 @@ def evaluate_model(
         test_loader (DataLoader): DataLoader for the test set
         batch_size (int): Batch size
         criterion (Module): Loss function
-        train_on_gpu (bool): Whether to train on GPU
+        device (torch.device): Device to evaluate on
 
     Returns:
         Tuple[float, float]: Test loss and accuracy
     """
+    model.to(device)
+
     # Make test loop for multiclass classification
+
     test_losses = []  # track loss
-    num_correct = 0
+    accuracies = []  # track accuracy
 
     # init hidden state
     h = model.init_hidden(batch_size)
@@ -136,8 +136,7 @@ def evaluate_model(
         # we'd backprop through the entire training history
         h = tuple([each.data for each in h])
 
-        if train_on_gpu:
-            inputs, labels = inputs.cuda(), labels.cuda()
+        inputs, labels = inputs.to(device), labels.to(device)
 
         # get predicted outputs
         output, h = model(inputs, h)
@@ -152,15 +151,12 @@ def evaluate_model(
         # compare predictions to true label
         true_label = torch.argmax(labels, 1)
 
-        correct_tensor = prediction.eq(true_label.data.view_as(prediction))
-        correct = (
-            np.squeeze(correct_tensor.numpy())
-            if not train_on_gpu
-            else np.squeeze(correct_tensor.cpu().numpy())
+        accuracies.append(
+            sum(prediction == true_label) / output.shape[0]
         )
-        num_correct += np.sum(correct)
 
     # accuracy over all test data
-    test_acc = num_correct / len(test_loader.dataset)
+    test_acc = sum(accuracies) / len(accuracies)
+    test_loss = np.mean(test_losses)
 
-    return np.mean(test_losses), test_acc
+    return test_loss, test_acc

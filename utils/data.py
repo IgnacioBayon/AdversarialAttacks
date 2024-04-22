@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 from pandas import DataFrame
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Union
 
 # own imports
 from utils.utils import tokenize, pad_features
@@ -129,7 +129,7 @@ def process_texts(
 
 def prepare_data_for_training(
     features: List[List[int]],
-    labels: List[int] | List[List[int]],
+    labels: Union[List[int], List[List[int]]],
     batch_size: int,
     split: float = 0.8,
 ) -> tuple[DataLoader, DataLoader]:
@@ -138,7 +138,7 @@ def prepare_data_for_training(
 
     Args:
         texts (List[List[int]]): List of tokenized sentences
-        labels (List[int] | List[List[int]]): List of labels (sentiment analysis) or one-hot encoded labels (classification)
+        labels (Union[List[int], List[List[int]]]): List of labels (sentiment analysis) or one-hot encoded labels (classification)
         seq_len (int): Length to pad the sequences
         split (float): Split between training and validation sets
 

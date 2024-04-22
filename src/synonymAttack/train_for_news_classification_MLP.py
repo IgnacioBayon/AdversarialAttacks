@@ -72,7 +72,7 @@ def train():
     classification_model.to(device)
 
     synonym_model = SynonymAttackRNN(
-        vocab_size=vocab_size + 1,
+        vocab_size=vocab_size,
         output_size=synonym_output_dim,
         embedding_dim=synonym_embedding_dim,
         hidden_dim=synonym_hidden_dim,

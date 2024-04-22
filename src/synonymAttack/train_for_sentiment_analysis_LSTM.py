@@ -64,7 +64,7 @@ def train():
     )
 
     sentiment_model = SentimentRNN(
-        vocab_size=len(word2idx) + 1,
+        vocab_size=len(word2idx),
         output_size=sentiment_output_size,
         embedding_dim=sentiment_embedding_dim,
         hidden_dim=sentiment_hidden_dim,
@@ -76,7 +76,7 @@ def train():
     sentiment_model.to(device)
 
     synonym_model = SynonymAttackModelMLP(
-        vocab_size=len(word2idx) + 1,
+        vocab_size=len(word2idx),
         embedding_dim=synonym_embedding_dim,
         input_dim=synonym_input_dim,
         hidden_dims=synonym_hidden_dims,
