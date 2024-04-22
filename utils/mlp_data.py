@@ -68,6 +68,7 @@ def load_and_preprocess_data(data_path: str, data_type: str) -> List[List[str]]:
                 sentences.append(tokens)
                 label = 1 if label == "positive" else 0
                 labels.append(label)
+        labels = [[1, 0] if label == 0 else [0, 1] for label in labels]
 
     elif data_type == "multiclass":
         df = pd.read_csv(data_path)
@@ -80,7 +81,8 @@ def load_and_preprocess_data(data_path: str, data_type: str) -> List[List[str]]:
             tokenize(title + description)
             for title, description in zip(titles, descriptions)
         ]
-        labels = [[1 if label == i + 1 else 0 for i in range(4)] for label in labels]
+        labels = [
+            [1 if label == i + 1 else 0 for i in range(4)] for label in labels]
 
     return sentences, labels
 
@@ -102,11 +104,14 @@ def create_lookup_tables(
     words = [word for sentence in sentences for word in sentence]
     word_counts: Counter = Counter(words)
     # Sorting the words from most to least frequent in text occurrence.
-    sorted_vocab: List[int] = sorted(word_counts, key=word_counts.get, reverse=True)
+    sorted_vocab: List[int] = sorted(
+        word_counts, key=word_counts.get, reverse=True)
 
     # Create int_to_vocab and vocab_to_int dictionaries.
-    int_to_vocab: Dict[int, str] = {i + 1: word for i, word in enumerate(sorted_vocab)}
-    vocab_to_int: Dict[str, int] = {word: i + 1 for i, word in int_to_vocab.items()}
+    int_to_vocab: Dict[int, str] = {
+        i + 1: word for i, word in enumerate(sorted_vocab)}
+    vocab_to_int: Dict[str, int] = {
+        word: i + 1 for i, word in int_to_vocab.items()}
 
     # Add the padding token
     vocab_to_int["-PAD-"] = 0
@@ -149,7 +154,7 @@ class GeneralDataset(Dataset):
 
 
 def generate_data_loader(
-    data_path: str, data_type: str, batch_size: int = 64, one_hot_encoding: bool = False
+    data_path: str, data_type: str, batch_size: int = 64
 ) -> Tuple[DataLoader, DataLoader, int, Dict[str, int], Dict[int, str]]:
     """
     Generate the data loaders for the training and test sets.
@@ -167,14 +172,12 @@ def generate_data_loader(
     # Load and preprocess the data
     sentences, labels = load_and_preprocess_data(data_path, data_type)
 
-    if one_hot_encoding:
-        labels = [[1, 0] if label == 0 else [0, 1] for label in labels]
-
     # Create lookup tables
     vocab_to_int, int_to_vocab = create_lookup_tables(sentences)
     vocab_size = len(vocab_to_int)
 
-    sentences = [[vocab_to_int[word] for word in sentence] for sentence in sentences]
+    sentences = [[vocab_to_int[word] for word in sentence]
+                 for sentence in sentences]
 
     # We choose the sentence length as the 95th percentile of the sentence length
     sentence_length = sorted([len(sentence) for sentence in sentences])[

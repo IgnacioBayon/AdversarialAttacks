@@ -58,7 +58,7 @@ def train():
         word2idx,
         idx2word,
         sentence_length,
-    ) = generate_data_loader(path_to_data, data_type, batch_size, one_hot_encoding=True)
+    ) = generate_data_loader(path_to_data, data_type, batch_size)
 
     sentiment_model = MultiLayerPerceptron(
         vocab_size + 1,

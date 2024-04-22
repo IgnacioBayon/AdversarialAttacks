@@ -90,10 +90,8 @@ def train_model(model, train_loader, val_loader, epochs, learning_rate, device, 
         # Print an element of the train_loader
         for i, (sentences, labels) in enumerate(train_loader):
             sentences, labels = sentences.to(device), labels.to(device)
-            if task == "binary":
-                sentences, labels = sentences.long(), labels.long()
-            elif task == "multiclass":
-                sentences, labels = sentences.long(), labels.float()
+            
+            sentences, labels = sentences.long(), labels.float()
 
             optimizer.zero_grad()
 
@@ -107,9 +105,7 @@ def train_model(model, train_loader, val_loader, epochs, learning_rate, device, 
             # For CrossEntropyLoss:
             predictions = torch.argmax(output, dim=1)
 
-            if task == "multiclass":
-                # Undo one-hot encoding
-                labels = torch.argmax(labels, dim=1)
+            labels = torch.argmax(labels, dim=1)
 
             correct += (predictions == labels).sum().item()
             total += labels.size(0)
@@ -125,19 +121,15 @@ def train_model(model, train_loader, val_loader, epochs, learning_rate, device, 
             total = 0
             for sentences, labels in val_loader:
                 sentences, labels = sentences.to(device), labels.to(device)
-                if task == "binary":
-                    sentences, labels = sentences.long(), labels.long()
-                elif task == "multiclass":
-                    sentences, labels = sentences.long(), labels.float()
+                
+                sentences, labels = sentences.long(), labels.float()
 
                 output = model(sentences)
 
                 # For CrossEntropyLoss:
                 predictions = torch.argmax(output, dim=1)
 
-                if task == "multiclass":
-                    # Undo one-hot encoding
-                    labels = torch.argmax(labels, dim=1)
+                labels = torch.argmax(labels, dim=1)
 
                 correct += (predictions == labels).sum().item()
                 total += labels.size(0)
@@ -166,19 +158,15 @@ def evaluate_model(
     with torch.no_grad():
         for sentences, labels in test_loader:
             sentences, labels = sentences.to(device), labels.to(device)
-            if task == "binary":
-                sentences, labels = sentences.long(), labels.long()
-            elif task == "multiclass":
-                sentences, labels = sentences.long(), labels.float()
+            
+            sentences, labels = sentences.long(), labels.float()
 
             output = model(sentences)
 
             # For CrossEntropyLoss:
             predictions = torch.argmax(output, dim=1)
 
-            if task == "multiclass":
-                # Undo one-hot encoding
-                labels = torch.argmax(labels, dim=1)
+            labels = torch.argmax(labels, dim=1)
 
             correct += (predictions == labels).sum().item()
             total += labels.size(0)
