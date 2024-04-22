@@ -69,7 +69,7 @@ class SynonymAttackRNN(nn.Module):
         self.output_size = output_size
         self.n_layers = n_layers
         self.hidden_dim = hidden_dim
-        self.devive = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # embedding and LSTM layers
         self.embedding = nn.Embedding(vocab_size, embedding_dim)

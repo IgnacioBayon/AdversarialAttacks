@@ -45,7 +45,7 @@ if __name__ == "__main__":
     ) = generate_data_loader(data_path, data_type, batch_size)
 
     model = MultiLayerPerceptron(
-        vocab_size, embedding_dim, hidden_sizes, output_dim
+        vocab_size + 1, embedding_dim, hidden_sizes, output_dim
     ).to(device)
 
     train_model(model, train_loader, val_loader, epochs, lr, device, task)

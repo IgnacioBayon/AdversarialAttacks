@@ -37,13 +37,15 @@ if __name__ == "__main__":
     _, _, test_loader, vocab_size, _, _, sentence_length = generate_data_loader(
         data_path, data_type, batch_size
     )
+    print(f"Vocab Size: {vocab_size}")
 
     model = MultiLayerPerceptron(
-        vocab_size, embedding_dim, hidden_sizes, output_dim
+        vocab_size + 1, embedding_dim, hidden_sizes, output_dim
     ).to(device)
 
     model = load_model(model, model_path, device)
     model.to(device)
+    print("Loaded Model")
 
     acc = evaluate_model(model, test_loader, device, task)
 

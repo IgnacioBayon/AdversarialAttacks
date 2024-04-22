@@ -39,7 +39,7 @@ if __name__ == "__main__":
     )
 
     model = MultiLayerPerceptron(
-        vocab_size, embedding_dim, hidden_sizes, output_dim
+        vocab_size + 1, embedding_dim, hidden_sizes, output_dim
     ).to(device)
 
     model = load_model(model, model_path, device)
